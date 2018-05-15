@@ -106,6 +106,8 @@ contract hs_node {
     
     function trans()
     public {
+        delete send_plus;
+        delete send_minus;
         //handle outbound messages
         if(fromPrev.flag == Direction.Out){
             //from the previous node

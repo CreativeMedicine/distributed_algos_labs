@@ -62,22 +62,29 @@ contract test_hs_node {
 	function step() private {
 		hs_node[5] memory nodes = [hs1, hs2, hs3, hs4, hs5];
 		//send all the messages for round x
-		for(uint i = 0; i < nodes.length - 1; i++) {
+		for(uint i = 0; i < nodes.length; i++) {
 			nodes[i].msgFunction();
 		}
 		//transition all of the nodes for round x
-		for(i = 0; i < nodes.length - 1; i++) {
+		for(i = 0; i < nodes.length; i++) {
 			nodes[i].trans();
 		}
 	}
 
+	function checkNode(hs_node curr, uint expected_id, hs_node.Direction expected_direction, uint expected_hopCount) private {
+		uint id;
+		hs_node.Direction direction; //dat inheritance doh...
+		uint hopCount;
+		(id, direction, hopCount) = curr.getOutgoing_toPrevProcess(); //this is how you work with multiple return values
+
+		Assert.equal(id, expected_id, "An incorrect ID was discovered outgoing to previous process.");
+		Assert.equal(uint(direction), uint(expected_direction), "An incorrect direction was discovered outgoing to previous process.");
+		Assert.equal(hopCount, expected_hopCount, "An incorrect hop cound was discovered outgoing to previous process.");
+	}
+
 	function testComparisonRound1() public {
 		step();
-		uint a;
-		hs_node.Direction b;
-		uint c;
-		(a, b, c) = hs1.getOutgoing_toPrevProcess();
-		Assert.equal(a, u5, "hs1 should have u5 buffered to be sent back to hs5 next round.");
+		checkNode(hs5, 0, hs_node.Direction.Out, 0);
 	}
 
 	// function testMessageBuffering() public {
