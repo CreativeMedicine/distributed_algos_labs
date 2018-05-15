@@ -91,6 +91,18 @@ contract hs_node {
             require(false); //should have been from one of either prevProcess or nextProcess
         }
     }
+
+    function getFromPrev()
+    public view 
+    returns(Triple) {
+        return fromPrev;
+    }
+
+    function getFromNext()
+    public view 
+    returns(Triple) {
+        return fromNext;
+    }
     
     function trans()
     public {

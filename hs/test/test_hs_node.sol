@@ -58,4 +58,39 @@ contract test_hs_node {
 		Assert.equal(hs5.getNextProcess(), hs1, "The next should match our ring network shape expectations.");
 		Assert.equal(hs1.getPrevProcess(), hs5, "The previous should match our ring network shape expectations."); //hs5 <--> hs1
 	}
+
+	function step() private {
+		hs_node[5] memory nodes = [hs1, hs2, hs3, hs4, hs5];
+		//send all the messages for round x
+		for(uint i = 0; i < nodes.length - 1; i++) {
+			nodes[i].msgFunction();
+		}
+		//transition all of the nodes for round x
+		for(i = 0; i < nodes.length - 1; i++) {
+			nodes[i].trans();
+		}
+	}
+
+	function testComparisonRound1() public {
+		step();
+		uint a;
+		hs_node.Direction b;
+		uint c;
+		(a, b, c) = hs1.getOutgoing_toPrevProcess();
+		Assert.equal(a, u5, "hs1 should have u5 buffered to be sent back to hs5 next round.");
+	}
+
+	// function testMessageBuffering() public {
+	// 	hs1.msgFunction();
+	// 	Assert.equal(hs2.getFromPrev().id, u1, "hs2 should have u1 buffered in fromPrev.");
+	// 	Assert.equal(hs5.getFromNext().id, u1, "hs5 should have u1 buffered in fromNext.");
+	// }
+
+	function testValidity() public {
+
+	}
+
+	function testTermination() public {
+
+	}
 }
