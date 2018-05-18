@@ -71,7 +71,7 @@ contract test_hs_node {
 		}
 	}
 
-	function checkNode(hs_node curr, uint expected_id, hs_node.Direction expected_direction, uint expected_hopCount) private {
+	function checkOutboundToPrev(hs_node curr, uint expected_id, hs_node.Direction expected_direction, uint expected_hopCount) private {
 		uint id;
 		hs_node.Direction direction; //dat inheritance doh...
 		uint hopCount;
@@ -79,25 +79,39 @@ contract test_hs_node {
 
 		Assert.equal(id, expected_id, "An incorrect ID was discovered outgoing to previous process.");
 		Assert.equal(uint(direction), uint(expected_direction), "An incorrect direction was discovered outgoing to previous process.");
-		Assert.equal(hopCount, expected_hopCount, "An incorrect hop cound was discovered outgoing to previous process.");
+		Assert.equal(hopCount, expected_hopCount, "An incorrect hop count was discovered outgoing to previous process.");
+	}
+
+	function checkOutboundToNext(hs_node curr, uint expected_id, hs_node.Direction expected_direction, uint expected_hopCount) private {
+		uint id;
+		hs_node.Direction direction; //dat inheritance doh...
+		uint hopCount;
+		(id, direction, hopCount) = curr.getOutgoing_toNextProcess(); //this is how you work with multiple return values
+
+		Assert.equal(id, expected_id, "An incorrect ID was discovered outgoing to next process.");
+		Assert.equal(uint(direction), uint(expected_direction), "An incorrect direction was discovered outgoing to next process.");
+		Assert.equal(hopCount, expected_hopCount, "An incorrect hop count was discovered outgoing to next process.");
 	}
 
 	function testComparisonRound1() public {
 		step();
-		checkNode(hs5, 0, hs_node.Direction.Out, 0);
-	}
-
-	// function testMessageBuffering() public {
-	// 	hs1.msgFunction();
-	// 	Assert.equal(hs2.getFromPrev().id, u1, "hs2 should have u1 buffered in fromPrev.");
-	// 	Assert.equal(hs5.getFromNext().id, u1, "hs5 should have u1 buffered in fromNext.");
-	// }
-
-	function testValidity() public {
-
+		checkOutboundToPrev(hs5, 0, hs_node.Direction.Out, 0);
+		checkOutboundToNext(hs5, 0, hs_node.Direction.Out, 0);
+		checkOutboundToPrev(hs4, 0, hs_node.Direction.Out, 0);
+		checkOutboundToNext(hs4, u5, hs_node.Direction.In, 1);
+		checkOutboundToPrev(hs3, u2, hs_node.Direction.In, 1);
+		checkOutboundToNext(hs3, u4, hs_node.Direction.In, 1);
+		checkOutboundToPrev(hs2, 0, hs_node.Direction.Out, 0);
+		checkOutboundToNext(hs2, 0, hs_node.Direction.Out, 0);
+		checkOutboundToPrev(hs1, u5, hs_node.Direction.In, 1);
+		checkOutboundToNext(hs1, u2, hs_node.Direction.In, 1);
 	}
 
 	function testTermination() public {
-
+		//should take at most 5 * n rounds... in this case n is 5
+		for(int i = 0; i < 25; i++) {
+			step();
+		}
+		Assert.isTrue(hs2.isLeader(), "hs2 should have been elected leader!");
 	}
 }

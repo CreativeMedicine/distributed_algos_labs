@@ -62,6 +62,12 @@ contract hs_node {
     returns(Status) {
         return status;
     }
+
+    function isLeader()
+    public view
+    returns(bool) {
+        return status == Status.Leader;
+    }
     
     function getOutgoing_toNextProcess()
     public view
